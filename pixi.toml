@@ -18,6 +18,11 @@ seaborn = ">=0.13.2,<0.14"
 
 [feature.dev.pypi-dependencies]
 pre-commit = "*"
+versionner = ">=1.5.3, <2"
+lice = ">=0.6, <0.7"
+
+[feature.dev.dependencies]
+setuptools = "<81"
 
 [environments]
 dev = ["dev"]
