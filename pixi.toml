@@ -6,7 +6,7 @@ platforms = ["osx-arm64"]
 version = "0.1.0"
 
 [tasks]
-test = "pytest"
+test = { cmd = "pytest", env = { PYTHONNOUSERSITE = "1" } }
 lint = "ruff check ."
 
 [dependencies]
