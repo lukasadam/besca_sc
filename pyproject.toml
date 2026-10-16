@@ -23,3 +23,16 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/besca_sc/_version.py"
+
+[tool.ruff.lint]
+select = [
+    "E",    # Pycodestyle errors
+    "F",    # Pyflakes
+    "D",    # Docstring conventions
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
