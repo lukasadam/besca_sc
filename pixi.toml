@@ -11,10 +11,10 @@ lint = "ruff check ."
 
 [dependencies]
 python = "3.12.*"
-scanpy = ">=1.12.4,<2"
 anndata = ">=0.13.4,<0.14"
 matplotlib = ">=3.11.2,<4"
 seaborn = ">=0.13.2,<0.14"
+plotnine = ">=0.15.8,<0.16"
 
 [feature.dev.pypi-dependencies]
 pre-commit = "*"
@@ -23,5 +23,9 @@ pytest = ">=9.1.1, <10"
 ruff = ">=0.17.1, <0.18"
 build = ">=1.6.1, <2"
 
+[feature.sc.dependencies]
+scanpy = "*"
+
 [environments]
 dev = ["dev"]
+sc = ["sc"]
