@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-
+import numpy as np
 from anndata import AnnData
 from loguru import logger
+
+from besca_sc._helper import subset_adata
 
 
 def _validate_thresholds(thresholds: dict[str, int | float | None]) -> None:
@@ -28,25 +29,11 @@ def _validate_thresholds(thresholds: dict[str, int | float | None]) -> None:
         raise ValueError("min_counts cannot be greater than max_counts")
 
 
-def _metric(adata: AnnData, names: Iterable[str], label: str):
-    """Return the first available metric, or raise a useful error."""
-    for name in names:
-        if name in adata.obs:
-            return adata.obs[name]
-    available = ", ".join(names)
-    raise ValueError(f"{label} requires one of these adata.obs columns: {available}")
-
-
-def _filter_cells(
-    adata: AnnData, metric, condition, description: str, threshold
-) -> AnnData:
-    """Apply a cell mask and log the number of removed cells."""
-    before = adata.n_obs
-    filtered = adata[condition(metric), :].copy()
-    logger.info(
-        "removed {} cells {} {}", before - filtered.n_obs, description, threshold
-    )
-    return filtered
+def _metric(adata: AnnData, name: str, label: str):
+    """Return a required Scanpy metric, or raise a useful error."""
+    if name not in adata.obs:
+        raise ValueError(f"{label} requires adata.obs['{name}']")
+    return adata.obs[name].to_numpy()
 
 
 def filter(
@@ -57,14 +44,15 @@ def filter(
     min_counts: int | None = None,
     min_cells: int | None = None,
     max_mito: float | None = None,
-    annotation_type: str | None = None,
-    species: str = "human",
+    max_ribo: float | None = None,
+    exclude_doublets: bool = False,
 ) -> AnnData:
     """Filter cells and genes using quality-control metrics.
 
     Filters are applied in this order: maximum genes, minimum genes, maximum
     counts, minimum counts, minimum cells per gene, and maximum mitochondrial
-    percentage. The input object is not modified.
+    percentage. The input object is not modified. All cell-level filters are
+    combined into one mask before subsetting.
 
     Parameters
     ----------
@@ -84,10 +72,12 @@ def filter(
     max_mito
         Maximum mitochondrial fraction allowed per cell. Cells equal to or
         above this value are removed using ``adata.obs['percent_mito']``.
-    annotation_type
-        Retained for API compatibility and not used by this function.
-    species
-        Retained for API compatibility and not used by this function.
+    max_ribo
+        Maximum ribosomal fraction allowed per cell. Cells equal to or above
+        this value are removed using ``adata.obs['percent_ribo']``.
+    exclude_doublets
+        Remove cells marked ``True`` in the Scanpy-compatible
+        ``adata.obs['predicted_doublet']`` column.
 
     Returns
     -------
@@ -104,9 +94,10 @@ def filter(
 
     Examples
     --------
-    >>> filtered = filter(adata, min_genes=500, max_mito=0.1, min_cells=3)
+    >>> filtered = filter(
+    ...     adata, min_genes=500, max_mito=0.1, max_ribo=0.4, min_cells=3
+    ... )
     """
-    del annotation_type, species
     if not isinstance(adata, AnnData):
         raise TypeError("adata must be an AnnData object")
 
@@ -117,61 +108,41 @@ def filter(
         "min_counts": min_counts,
         "min_cells": min_cells,
         "max_mito": max_mito,
+        "max_ribo": max_ribo,
     }
     _validate_thresholds(thresholds)
 
     logger.info("started with {} cells and {} genes", adata.n_obs, adata.n_vars)
 
+    cell_mask = np.ones(adata.n_obs, dtype=bool)
     if max_genes is not None:
-        adata = _filter_cells(
-            adata,
-            _metric(adata, ("n_genes", "n_genes_by_counts"), "max_genes"),
-            lambda values: values <= max_genes,
-            "with more than",
-            max_genes,
-        )
+        cell_mask &= _metric(adata, "n_genes_by_counts", "max_genes") <= max_genes
     if min_genes is not None:
-        adata = _filter_cells(
-            adata,
-            _metric(adata, ("n_genes", "n_genes_by_counts"), "min_genes"),
-            lambda values: values >= min_genes,
-            "with fewer than",
-            min_genes,
-        )
+        cell_mask &= _metric(adata, "n_genes_by_counts", "min_genes") >= min_genes
     if max_counts is not None:
-        adata = _filter_cells(
-            adata,
-            _metric(adata, ("n_counts", "total_counts"), "max_counts"),
-            lambda values: values <= max_counts,
-            "with more than",
-            max_counts,
-        )
+        cell_mask &= _metric(adata, "total_counts", "max_counts") <= max_counts
     if min_counts is not None:
-        adata = _filter_cells(
-            adata,
-            _metric(adata, ("n_counts", "total_counts"), "min_counts"),
-            lambda values: values >= min_counts,
-            "with fewer than",
-            min_counts,
-        )
+        cell_mask &= _metric(adata, "total_counts", "min_counts") >= min_counts
+    if max_mito is not None:
+        cell_mask &= _metric(adata, "percent_mito", "max_mito") < max_mito
+    if max_ribo is not None:
+        cell_mask &= _metric(adata, "percent_ribo", "max_ribo") < max_ribo
+    if exclude_doublets:
+        doublets = _metric(adata, "predicted_doublet", "exclude_doublets")
+        if not np.issubdtype(doublets.dtype, np.bool_):
+            raise TypeError("adata.obs['predicted_doublet'] must contain booleans")
+        cell_mask &= ~doublets
+
+    if not np.all(cell_mask):
+        logger.info("removed {} cells", int((~cell_mask).sum()))
+        adata = subset_adata(adata, cell_mask, axis=0)
+
     if min_cells is not None:
         if "n_cells" not in adata.var:
             raise ValueError("min_cells requires adata.var['n_cells']")
-        before = adata.n_vars
-        adata = adata[:, adata.var["n_cells"] >= min_cells].copy()
-        logger.info(
-            "removed {} genes expressed in fewer than {} cells",
-            before - adata.n_vars,
-            min_cells,
-        )
-    if max_mito is not None:
-        adata = _filter_cells(
-            adata,
-            _metric(adata, ("percent_mito",), "max_mito"),
-            lambda values: values < max_mito,
-            "with mitochondrial percentage at least",
-            max_mito,
-        )
+        gene_mask = adata.var["n_cells"] >= min_cells
+        logger.info("removed {} genes", int((~gene_mask).sum()))
+        adata = subset_adata(adata, gene_mask, axis=1)
 
     logger.info("finished with {} cells and {} genes", adata.n_obs, adata.n_vars)
     return adata

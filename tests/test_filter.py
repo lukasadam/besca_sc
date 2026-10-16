@@ -18,6 +18,8 @@ def adata() -> AnnData:
                 "n_genes_by_counts": [2, 4, 6],
                 "total_counts": [5, 10, 15],
                 "percent_mito": [0.01, 0.02, 0.20],
+                "percent_ribo": [0.10, 0.20, 0.50],
+                "predicted_doublet": [False, False, True],
             },
             index=["cell1", "cell2", "cell3"],
         ),
@@ -48,8 +50,8 @@ def test_min_genes_is_inclusive(adata: AnnData) -> None:
     assert list(result.obs_names) == ["cell2", "cell3"]
 
 
-def test_count_thresholds_use_aliases(adata: AnnData) -> None:
-    """Support total_counts as the count metric alias."""
+def test_count_thresholds_use_scanpy_metric(adata: AnnData) -> None:
+    """Use Scanpy's total_counts metric for count thresholds."""
     result = filter(adata, min_counts=10, max_counts=10)
 
     assert list(result.obs_names) == ["cell2"]
@@ -58,6 +60,20 @@ def test_count_thresholds_use_aliases(adata: AnnData) -> None:
 def test_max_mito_is_exclusive(adata: AnnData) -> None:
     """Remove cells at or above the mitochondrial threshold."""
     result = filter(adata, max_mito=0.20)
+
+    assert list(result.obs_names) == ["cell1", "cell2"]
+
+
+def test_max_ribo_is_exclusive(adata: AnnData) -> None:
+    """Remove cells at or above the ribosomal threshold."""
+    result = filter(adata, max_ribo=0.20)
+
+    assert list(result.obs_names) == ["cell1"]
+
+
+def test_exclude_doublets(adata: AnnData) -> None:
+    """Remove cells marked as predicted doublets."""
+    result = filter(adata, exclude_doublets=True)
 
     assert list(result.obs_names) == ["cell1", "cell2"]
 
@@ -97,4 +113,12 @@ def test_filter_reports_missing_requested_metric(adata: AnnData) -> None:
     del adata.obs["n_genes_by_counts"]
 
     with pytest.raises(ValueError, match="max_genes"):
+        filter(adata, max_genes=10)
+
+
+def test_filter_rejects_non_scanpy_metric_names(adata: AnnData) -> None:
+    """Require Scanpy metric names instead of legacy aliases."""
+    adata.obs["n_genes"] = adata.obs.pop("n_genes_by_counts")
+
+    with pytest.raises(ValueError, match="n_genes_by_counts"):
         filter(adata, max_genes=10)
