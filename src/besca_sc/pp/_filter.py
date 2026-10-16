@@ -49,11 +49,6 @@ def filter(
 ) -> AnnData:
     """Filter cells and genes using quality-control metrics.
 
-    Filters are applied in this order: maximum genes, minimum genes, maximum
-    counts, minimum counts, minimum cells per gene, and maximum mitochondrial
-    percentage. The input object is not modified. All cell-level filters are
-    combined into one mask before subsetting.
-
     Parameters
     ----------
     adata
