@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from anndata import AnnData
 
-from besca_sc._helper import subset_adata
+from besca_sc._helper import convert_ensembl_to_symbol, subset_adata
 
 
 @pytest.fixture
@@ -48,3 +48,20 @@ def test_raw_requires_raw_layer() -> None:
     adata = AnnData(np.ones((2, 2)))
     with pytest.raises(ValueError, match="adata.raw"):
         subset_adata(adata, [True, False], use_raw=True)
+
+
+def test_convert_ensembl_to_symbol(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Convert Ensembl IDs using the requested MyGene query parameters."""
+
+    class FakeMyGeneInfo:
+        def querymany(
+            self, gene_list: list[str], **kwargs: object
+        ) -> list[dict[str, str]]:
+            return [{"symbol": "TP53"}, {"symbol": "BRCA1"}]
+
+    fake_mygene = type("FakeMyGene", (), {"MyGeneInfo": FakeMyGeneInfo})
+    monkeypatch.setitem(__import__("sys").modules, "mygene", fake_mygene)
+
+    result = convert_ensembl_to_symbol(["ENSG00000141510", "ENSG00000012048"])
+
+    assert result == ["TP53", "BRCA1"]
