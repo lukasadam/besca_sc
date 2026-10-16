@@ -368,6 +368,8 @@ environments:
   sc:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    indexes:
+    - https://pypi.org/simple
     packages:
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/anndata-0.13.4-pyhd8ed1ab_0.conda
@@ -527,6 +529,13 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h74c22ad_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
+      - pypi: https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/df/f8fe522363990cc3b588d4dafd7601545ca5c3a7b452afc1a79f7802ba2f/biothings_client-0.5.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a7/b7/132b1673c0ec00881d49d56c09624942fa0ebd2fc21d73d80647efa082e9/mygene-3.2.2-py2.py3-none-any.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/noarch/anndata-0.13.4-pyhd8ed1ab_0.conda
   sha256: c325ebd706c72e7db772f5311f67373cbc2b1ad35b0e3fe0c51f803b8e8a41d6
@@ -624,6 +633,8 @@ packages:
   depends:
   - python >=3.10
   license: ISC
+  purls:
+  - pkg:pypi/certifi?source=hash-mapping
   run_exports: {}
   size: 137015
   timestamp: 1784717699092
@@ -635,6 +646,8 @@ packages:
   - python
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/cloudpickle?source=hash-mapping
   run_exports: {}
   size: 27353
   timestamp: 1765303462831
@@ -677,6 +690,8 @@ packages:
   - scipy >=1.13
   license: MPL-2.0
   license_family: MOZILLA
+  purls:
+  - pkg:pypi/fast-array-utils?source=compressed-mapping
   run_exports: {}
   size: 42639
   timestamp: 1790063930087
@@ -785,6 +800,8 @@ packages:
   - python
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/joblib?source=compressed-mapping
   run_exports: {}
   size: 228858
   timestamp: 1788177170105
@@ -881,6 +898,8 @@ packages:
   - pandas >=2.0
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/networkx?source=compressed-mapping
   run_exports: {}
   size: 1642541
   timestamp: 1790068597221
@@ -976,6 +995,8 @@ packages:
   - setuptools
   license: BSD-2-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/pynndescent?source=hash-mapping
   run_exports: {}
   size: 64561
   timestamp: 1785514264433
@@ -1062,6 +1083,8 @@ packages:
   - umap-learn >=0.5.12
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/scanpy?source=hash-mapping
   run_exports: {}
   size: 1999630
   timestamp: 1788441088434
@@ -1130,6 +1153,8 @@ packages:
   - python >=3.10
   license: MIT
   license_family: MIT
+  purls:
+  - pkg:pypi/setuptools?source=compressed-mapping
   run_exports: {}
   size: 524488
   timestamp: 1786282924579
@@ -1153,6 +1178,8 @@ packages:
   - python >=3.11
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/threadpoolctl?source=compressed-mapping
   run_exports: {}
   size: 31829
   timestamp: 1789547529761
@@ -1167,6 +1194,8 @@ packages:
   - envwrap >=0.2
   - ipywidgets >=6.0
   license: MPL-2.0 and MIT
+  purls:
+  - pkg:pypi/tqdm?source=compressed-mapping
   run_exports: {}
   size: 95977
   timestamp: 1789187326570
@@ -2016,6 +2045,7 @@ packages:
   - libxml2-16 >=2.15.4
   license: BSD-3-Clause
   license_family: BSD
+  purls: []
   run_exports:
     weak:
     - libhwloc >=2.15.0,<2.15.1.0a0
@@ -2280,6 +2310,7 @@ packages:
   - libxml2 2.15.4
   license: MIT
   license_family: MIT
+  purls: []
   run_exports: {}
   size: 469239
   timestamp: 1791465646245
@@ -2295,6 +2326,7 @@ packages:
   - libzlib >=1.3.2,<2.0a0
   license: MIT
   license_family: MIT
+  purls: []
   run_exports:
     weak:
     - libxml2
@@ -2344,6 +2376,8 @@ packages:
   - python_abi 3.12.* *_cp312
   license: BSD-2-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/llvmlite?source=compressed-mapping
   run_exports: {}
   size: 30497478
   timestamp: 1790753620077
@@ -2454,6 +2488,8 @@ packages:
   - cuda-python >=11.6
   license: BSD-2-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/numba?source=compressed-mapping
   run_exports: {}
   size: 6112507
   timestamp: 1790835922925
@@ -2768,6 +2804,8 @@ packages:
   - python_abi 3.12.* *_cp312
   license: BSD-3-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/scikit-learn?source=compressed-mapping
   run_exports: {}
   size: 9392805
   timestamp: 1790072990565
@@ -2825,6 +2863,7 @@ packages:
   - libhwloc >=2.15.0,<2.15.1.0a0
   license: Apache-2.0
   license_family: APACHE
+  purls: []
   run_exports: {}
   size: 126919
   timestamp: 1790591900872
@@ -2872,6 +2911,8 @@ packages:
   - tqdm
   license: BSD-2-Clause
   license_family: BSD
+  purls:
+  - pkg:pypi/umap-learn?source=hash-mapping
   run_exports: {}
   size: 196361
   timestamp: 1775694457622
@@ -3160,6 +3201,24 @@ packages:
   - markupsafe>=2.0.1
   - mkdocs>=1.1
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl
+  name: httpx
+  version: 0.28.1
+  sha256: d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad
+  requires_dist:
+  - anyio
+  - certifi
+  - httpcore==1.*
+  - idna
+  - brotli ; platform_python_implementation == 'CPython' and extra == 'brotli'
+  - brotlicffi ; platform_python_implementation != 'CPython' and extra == 'brotli'
+  - click==8.* ; extra == 'cli'
+  - pygments==2.* ; extra == 'cli'
+  - rich>=10,<14 ; extra == 'cli'
+  - h2>=3,<5 ; extra == 'http2'
+  - socksio==1.* ; extra == 'socks'
+  - zstandard>=0.18.0 ; extra == 'zstd'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/2c/19/04f9b178c2d8a15b076c8b5140708fa6ffc5601fb6f1e975537072df5b2a/mergedeep-1.3.4-py3-none-any.whl
   name: mergedeep
   version: 1.3.4
@@ -3169,6 +3228,25 @@ packages:
   name: trove-classifiers
   version: 2026.9.21.13
   sha256: 8b1ff4f9c191b1040b71c37f1e445ab99732911e3cd91de52838453a854d7a17
+- pypi: https://files.pythonhosted.org/packages/38/df/f8fe522363990cc3b588d4dafd7601545ca5c3a7b452afc1a79f7802ba2f/biothings_client-0.5.1-py3-none-any.whl
+  name: biothings-client
+  version: 0.5.1
+  sha256: 8ca9e23887016eabda10054c3fcd1a2482271afac2e58e8399c5a6f841f1735d
+  requires_dist:
+  - httpx>=0.25.0,<1.0 ; python_full_version >= '3.8'
+  - httpx>=0.24.0,<1.0 ; python_full_version == '3.7.*'
+  - importlib-metadata ; python_full_version < '3.8'
+  - typing-extensions ; python_full_version < '3.8'
+  - anysqlite ; python_full_version >= '3.8' and extra == 'caching'
+  - hishel[httpx]==1.1.8 ; python_full_version == '3.9.*' and extra == 'caching'
+  - hishel[httpx]>=1.1.9,<2 ; python_full_version >= '3.10' and extra == 'caching'
+  - pandas>=1.2.0 ; extra == 'dataframe'
+  - pyld>=0.7.2 ; extra == 'jsonld'
+  - pytest>=8.3.3 ; python_full_version >= '3.8' and extra == 'tests'
+  - pytest>=7.4.4 ; python_full_version == '3.7.*' and extra == 'tests'
+  - pytest-asyncio>=0.23.8 ; python_full_version >= '3.8' and extra == 'tests'
+  - pytest-asyncio>=0.21.2 ; python_full_version == '3.7.*' and extra == 'tests'
+  requires_python: '>=3.7'
 - pypi: https://files.pythonhosted.org/packages/3b/31/fad7fd2ac81954d02d33765bf8535eb320fcc2d71f2603a5c1ba0b13b8ef/uv-0.13.1-py3-none-macosx_11_0_arm64.whl
   name: uv
   version: 0.13.1
@@ -3325,6 +3403,18 @@ packages:
   requires_dist:
   - regex ; extra == 'extras'
   requires_python: '>=3.10'
+- pypi: https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl
+  name: httpcore
+  version: 1.0.9
+  sha256: 2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55
+  requires_dist:
+  - certifi
+  - h11>=0.16
+  - anyio>=4.0,<5.0 ; extra == 'asyncio'
+  - h2>=3,<5 ; extra == 'http2'
+  - socksio==1.* ; extra == 'socks'
+  - trio>=0.22.0,<1.0 ; extra == 'trio'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/7f/66/b15ce62552d84bbfcec9a4873ab79d993a1dd4edb922cbfccae192bd5b5f/jaraco.classes-3.4.0-py3-none-any.whl
   name: jaraco-classes
   version: 3.4.0
@@ -3464,6 +3554,12 @@ packages:
   version: 3.0.4
   sha256: 0930db9bdc62d22944e10b066448bb65dc9abe9112880c7cab8da54db4284d5f
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/a7/b7/132b1673c0ec00881d49d56c09624942fa0ebd2fc21d73d80647efa082e9/mygene-3.2.2-py2.py3-none-any.whl
+  name: mygene
+  version: 3.2.2
+  sha256: 18d85d1b28ecee2be31d844607fb0c5f7d7c58573278432df819ee2a5e88fe46
+  requires_dist:
+  - biothings-client>=0.2.6
 - pypi: https://files.pythonhosted.org/packages/ad/21/17c1bc9e6f47c972ad66fb2ac2568f99f90f1207eeb6fc3b34d094dba7b5/mkdocs_material-9.7.7-py3-none-any.whl
   name: mkdocs-material
   version: 9.7.7

@@ -31,6 +31,9 @@ loguru = ">=0.7.3,<0.8"
 [feature.sc.dependencies]
 scanpy = "*"
 
+[feature.sc.pypi-dependencies]
+mygene = ">=3.2.2, <4"
+
 [environments]
 dev = ["dev"]
 sc = ["sc"]
