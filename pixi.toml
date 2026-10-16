@@ -18,12 +18,15 @@ plotnine = ">=0.15.8,<0.16"
 
 [feature.dev.pypi-dependencies]
 pre-commit = "*"
-versionner = ">=1.5.3, <2"
 pytest = ">=9.1.1, <10"
 ruff = ">=0.17.1, <0.18"
 build = ">=1.6.1, <2"
 mkdocs-material = ">=9.7.7, <10"
 mkdocstrings-python = ">=2.0.9, <3"
+hatch = ">=1.18.1, <2"
+
+[feature.dev.dependencies]
+loguru = ">=0.7.3,<0.8"
 
 [feature.sc.dependencies]
 scanpy = "*"
