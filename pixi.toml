@@ -27,6 +27,7 @@ hatch = ">=1.18.1, <2"
 
 [feature.dev.dependencies]
 loguru = ">=0.7.3,<0.8"
+scanpy = "*"
 
 [feature.sc.dependencies]
 scanpy = "*"
