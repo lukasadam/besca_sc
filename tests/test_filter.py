@@ -78,6 +78,14 @@ def test_exclude_doublets(adata: AnnData) -> None:
     assert list(result.obs_names) == ["cell1", "cell2"]
 
 
+def test_exclude_doublets_reports_missing_metric(adata: AnnData) -> None:
+    """Explain which option requires the doublet metric."""
+    del adata.obs["predicted_doublet"]
+
+    with pytest.raises(ValueError, match="exclude_doublets.*predicted_doublet"):
+        filter(adata, exclude_doublets=True)
+
+
 def test_min_cells_filters_genes(adata: AnnData) -> None:
     """Remove genes expressed in fewer than the requested cells."""
     result = filter(adata, min_cells=2)

@@ -29,10 +29,10 @@ def _validate_thresholds(thresholds: dict[str, int | float | None]) -> None:
         raise ValueError("min_counts cannot be greater than max_counts")
 
 
-def _metric(adata: AnnData, name: str, label: str):
+def _metric(adata: AnnData, name: str, context: str):
     """Return a required Scanpy metric, or raise a useful error."""
     if name not in adata.obs:
-        raise ValueError(f"{label} requires adata.obs['{name}']")
+        raise ValueError(f"{context} requires adata.obs['{name}']")
     return adata.obs[name].to_numpy()
 
 
