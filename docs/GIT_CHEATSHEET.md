@@ -69,6 +69,19 @@ git show HEAD                     # Inspect latest commit
 git commit --amend                # Amend latest commit
 ```
 
+## GitHub authentication on macOS
+
+For an HTTPS remote, configure Git to store your GitHub personal access token
+in the macOS Keychain:
+
+```bash
+git config --global credential.helper osxkeychain
+git push -u origin main
+```
+
+When prompted, enter your GitHub username and use the personal access token as
+the password. GitHub no longer accepts account passwords for Git operations.
+
 ## Quick decision guide
 
 | Question                                         | Commit type |
