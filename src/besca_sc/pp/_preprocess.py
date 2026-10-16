@@ -6,6 +6,7 @@ from collections.abc import Sequence
 
 import anndata as ad
 import scanpy as sc
+from loguru import logger
 
 from besca_sc.pp._lognorm import lognorm as _lognorm
 
@@ -64,9 +65,22 @@ def preprocess(
     if regression and not covariates:
         raise ValueError("regression requires at least one covariate")
 
+    logger.info(
+        "started preprocessing for {} cells and {} genes",
+        adata.n_obs,
+        adata.n_vars,
+    )
     result = _lognorm(adata) if lognorm else adata.copy()
+    if lognorm:
+        logger.info("preprocessing step: log-normalization")
+    else:
+        logger.info("preprocessing step: log-normalization skipped")
 
     if hvg:
+        logger.info(
+            "preprocessing step: identifying {} highly variable genes",
+            n_top_genes,
+        )
         sc.pp.highly_variable_genes(
             result,
             n_top_genes=n_top_genes,
@@ -74,8 +88,18 @@ def preprocess(
             batch_key=batch_key,
             layer=layer,
         )
+    else:
+        logger.info("preprocessing step: highly variable gene selection skipped")
 
     if regression:
+        logger.info("preprocessing step: regressing out {}", list(covariates))
         sc.pp.regress_out(result, keys=list(covariates))
+    else:
+        logger.info("preprocessing step: regression skipped")
 
+    logger.info(
+        "finished preprocessing for {} cells and {} genes",
+        result.n_obs,
+        result.n_vars,
+    )
     return result
