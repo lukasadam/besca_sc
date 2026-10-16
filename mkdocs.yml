@@ -1,0 +1,21 @@
+site_name: besca_sc
+site_description: Single-cell analysis utilities
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.tabs
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference: api.md
+  - Development:
+      - Pixi Cheat Sheet: PIXI_CHEATSHEET.md
+      - Git Cheat Sheet: GIT_CHEATSHEET.md
