@@ -1,0 +1,23 @@
+[workspace]
+authors = ["Lukas Adam <gm.lukas.adam@gmail.com>"]
+channels = ["conda-forge"]
+name = "besca_sc"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+test = "pytest"
+lint = "ruff check ."
+
+[dependencies]
+python = "3.12.*"
+scanpy = ">=1.12.4,<2"
+anndata = ">=0.13.4,<0.14"
+matplotlib = ">=3.11.2,<4"
+seaborn = ">=0.13.2,<0.14"
+
+[feature.dev.pypi-dependencies]
+pre-commit = "*"
+
+[environments]
+dev = ["dev"]

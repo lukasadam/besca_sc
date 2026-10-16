@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Lukas Adam <gm.lukas.adam@gmail.com>"]
+channels = ["conda-forge"]
+name = "besca_sc"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[dependencies]
+python = ">=3.12"
+
+[tasks]
+
+[pypi-dependencies]
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
