@@ -24,10 +24,10 @@ def preprocess(
     regression: bool | None = None,
 ) -> ad.AnnData:
     """Run selected preprocessing steps on an AnnData object.
-     
-    Steps run in order: log-normalization, 
-    highly variable gene identification, and regression. 
-    Regression is enabled automatically when ``covariates`` 
+
+    Steps run in order: log-normalization,
+    highly variable gene identification, and regression.
+    Regression is enabled automatically when ``covariates``
     is provided, preserving the original behavior.
 
     Parameters
@@ -39,10 +39,10 @@ def preprocess(
     flavor : str, optional
         The method to use for selecting highly variable genes. Default is "seurat_v3".
     batch_key : str, optional
-        The key in adata.obs to use for batch-aware HVG selection. 
+        The key in adata.obs to use for batch-aware HVG selection.
         Default is None (no batch-aware selection).
     covariates : Sequence[str], optional
-        List of covariate keys in adata.obs to regress out. 
+        List of covariate keys in adata.obs to regress out.
         Default is None (no regression).
     layer : str, optional
         The layer in adata to use for HVG selection. Default is None (use adata.X).
@@ -51,14 +51,14 @@ def preprocess(
     hvg : bool, optional
         Whether to select highly variable genes. Default is True.
     regression : bool, optional
-        Whether to regress out covariates. If None, automatically enabled when 
+        Whether to regress out covariates. If None, automatically enabled when
         covariates are provided. Default is None.
 
     Returns
     -------
     AnnData
         The preprocessed annotated data matrix.
-   
+
     """
     if regression is None:
         regression = covariates is not None

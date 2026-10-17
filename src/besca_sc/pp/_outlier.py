@@ -101,13 +101,16 @@ def flag_outliers(
         adata.n_obs,
         adata.n_vars,
     )
-    
-    filters = dict(qc_filters or {
-        "log1p_total_counts": (5, "both"),
-        "log1p_n_genes_by_counts": (5, "both"),
-        "pct_counts_in_top_20_genes": (5, "both"),
-        "logit_mt_fraction": (3, "upper"),
-    })
+
+    filters = dict(
+        qc_filters
+        or {
+            "log1p_total_counts": (5, "both"),
+            "log1p_n_genes_by_counts": (5, "both"),
+            "pct_counts_in_top_20_genes": (5, "both"),
+            "logit_mt_fraction": (3, "upper"),
+        }
+    )
     filters.setdefault("logit_mt_fraction", (3, "upper"))
 
     required = {"total_counts_mt", "total_counts", "pct_counts_mt"}
@@ -115,9 +118,7 @@ def flag_outliers(
     if missing:
         raise ValueError(f"missing mitochondrial QC metrics: {sorted(missing)}")
 
-    mt_fraction = (adata.obs["total_counts_mt"] + 1) / (
-        adata.obs["total_counts"] + 2
-    )
+    mt_fraction = (adata.obs["total_counts_mt"] + 1) / (adata.obs["total_counts"] + 2)
     adata.obs["logit_mt_fraction"] = logit(mt_fraction)
 
     flags = {

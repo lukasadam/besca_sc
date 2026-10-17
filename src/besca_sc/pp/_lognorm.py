@@ -6,6 +6,7 @@ import scanpy as sc
 from anndata import AnnData
 from loguru import logger
 
+
 def lognorm(adata: AnnData, target_sum: float | None = None) -> AnnData:
     """
     Log-normalize the data in an AnnData object.

@@ -20,4 +20,3 @@ def test_lognorm_normalizes_and_preserves_counts() -> None:
     np.testing.assert_array_equal(result.raw.X, counts)
     np.testing.assert_array_equal(adata.X, counts)
     assert result is not adata
-
