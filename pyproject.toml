@@ -1,6 +1,6 @@
 [project]
 authors = [{name = "Lukas Adam", email = "gm.lukas.adam@gmail.com"}]
-dependencies = []
+dependencies = ["loguru>=0.7.3,<0.8"]
 name = "besca_sc"
 requires-python = ">= 3.11"
 dynamic = ["version"]

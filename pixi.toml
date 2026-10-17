@@ -12,6 +12,7 @@ format = "ruff format ."
 format-check = "ruff format --check ."
 typecheck = "mypy src"
 docs = "mkdocs build"
+notebook = "marimo edit notebooks/standard_workflow.py"
 
 [dependencies]
 python = "3.12.*"
@@ -19,6 +20,7 @@ anndata = ">=0.13.4,<0.14"
 matplotlib = ">=3.11.2,<4"
 seaborn = ">=0.13.2,<0.14"
 plotnine = ">=0.15.8,<0.16"
+loguru = ">=0.7.3,<0.8"
 
 [pypi-dependencies]
 besca_sc = { path = ".", editable = true }
@@ -35,7 +37,6 @@ mkdocstrings-python = ">=2.0.9, <3"
 hatch = ">=1.18.1, <2"
 
 [feature.dev.dependencies]
-loguru = ">=0.7.3,<0.8"
 scanpy = "*"
 mypy = "*"
 

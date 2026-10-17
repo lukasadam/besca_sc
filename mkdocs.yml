@@ -10,8 +10,8 @@ theme:
 
 plugins:
   - search
-  - mkdocstrings
-    handlers:
+  - mkdocstrings:
+      handlers:
         python:
           paths: [src]
           options:
