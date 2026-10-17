@@ -8,6 +8,10 @@ version = "0.1.0"
 [tasks]
 test = { cmd = "pytest", env = { PYTHONNOUSERSITE = "1" } }
 lint = "ruff check ."
+format = "ruff format ."
+format-check = "ruff format --check ."
+typecheck = "mypy src"
+docs = "mkdocs build"
 
 [dependencies]
 python = "3.12.*"
@@ -15,6 +19,11 @@ anndata = ">=0.13.4,<0.14"
 matplotlib = ">=3.11.2,<4"
 seaborn = ">=0.13.2,<0.14"
 plotnine = ">=0.15.8,<0.16"
+
+[pypi-dependencies]
+besca_sc = { path = ".", editable = true }
+ipykernel = ">=6.29,<7"
+jupyter = ">=1.1,<2"
 
 [feature.dev.pypi-dependencies]
 pre-commit = "*"
@@ -28,6 +37,7 @@ hatch = ">=1.18.1, <2"
 [feature.dev.dependencies]
 loguru = ">=0.7.3,<0.8"
 scanpy = "*"
+mypy = "*"
 
 [feature.sc.dependencies]
 scanpy = "*"
@@ -35,6 +45,159 @@ scanpy = "*"
 [feature.sc.pypi-dependencies]
 mygene = ">=3.2.2, <4"
 
+[feature.notebook.dependencies]
+marimo = "*"
+
 [environments]
 dev = ["dev"]
 sc = ["sc"]
+besca = ["notebook", "sc"]
+
+# https://docs.astral.sh/ruff
+[tool.ruff] # settings for linting and formatting
+# Exclude a variety of commonly ignored directories.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Allow lines to be as long as 99 characters.
+line-length = 99
+target-version = "py312" # Tells ruff to lint for Python 3.12 syntax
+src = ["src"] # We are using src layout not the root layout
+
+# https://docs.astral.sh/ruff/rules
+[tool.ruff.lint] # settings for linting
+ignore = [
+  "EXE002",
+  "D100", # We ignore the doc coverage for now
+  "D101", # We ignore the doc coverage for now
+  "D102", # We ignore the doc coverage for now
+  "D103", # We ignore the doc coverage for now
+  "D104", # We ignore the doc coverage for now
+  "D105", # We ignore the doc coverage for now
+  "D106", # We ignore the doc coverage for now
+  "D107", # We ignore the doc coverage for now,
+  "D203", # one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `one-blank-line-before-class`.
+  "D213", # `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
+  "D401", #Too many violations, to be activated later
+  "G004", #Too many violations, to be activated later
+  "FIX002", #It is permitted to have TODO's
+  "TD003", # Issue link is not required for TODO's
+  "TRY003",
+  "TRY002", # We don't to create a new exception type for each and every flavor of exception
+  "EM101",
+  "EM102", # If enforced this rule it makes the exception a bit easier to read (when the exception occurs) but makes the code a bit harder to read
+  "FA102", # missing from __future__ imports
+  "FA100", # missing from __future__ imports
+  "PLR0913", # Too many arguments - acceptable for domain-specific scientific functions
+  "PD101", # using nunique to check if series is constant 
+  # avoid conflicts with formatting:
+  "W191",
+  "E111",
+  "E114",
+  "E117",
+  "D206",
+  "D300",
+  "Q000",
+  "Q001",
+  "Q002",
+  "Q003",
+  "COM812",
+  "COM819",
+  "ISC002",
+]
+select = [
+  "F",
+  "E",
+  "W",
+  "I",
+  "N",
+  "D",
+  "B",
+  "YTT",
+  "ANN",
+  "ASYNC",
+  "S",
+  "BLE",
+  "FBT",
+  "B",
+  "A",
+  "COM",
+  "C4",
+  "DTZ",
+  "T10",
+  "DJ",
+  "EM",
+  "EXE",
+  "FA",
+  "ISC",
+  "ICN",
+  "G",
+  "INP",
+  "PIE",
+  "T20",
+  "PYI",
+  "PT",
+  "Q",
+  "RSE",
+  "RET",
+  "SLF",
+  "SLOT",
+  "SIM",
+  "TID",
+  "TCH",
+  "INT",
+  "ARG",
+  "PTH",
+  "TD",
+  "FIX",
+  "ERA",
+  "PD",
+  "PGH",
+  "PL",
+  "TRY",
+  "FLY",
+  "NPY",
+  "AIR",
+  "PERF",
+  "RUF",
+]
+
+[tool.pytest.ini_options]
+addopts = ["--maxfail=1", "--log-level=DEBUG", "--color=yes"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# https://docs.astral.sh/ruff/settings/#lint_per-file-ignores
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+  "N806",
+  "S101",
+  "PLR2004",
+  "PT011",
+]
