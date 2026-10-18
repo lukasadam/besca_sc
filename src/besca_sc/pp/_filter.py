@@ -6,7 +6,7 @@ import numpy as np
 from anndata import AnnData
 from loguru import logger
 
-from besca_sc._helper import subset_adata
+from besca_sc.pp._subset import subset_adata
 
 
 def _validate_thresholds(thresholds: dict[str, int | float | None]) -> None:
@@ -36,16 +36,16 @@ def _metric(adata: AnnData, name: str, context: str):
     return adata.obs[name].to_numpy()
 
 
-def filter(
+def filter_cells_and_genes(
     adata: AnnData,
     max_genes: int | None = None,
     min_genes: int | None = None,
     max_counts: int | None = None,
     min_counts: int | None = None,
-    min_cells: int | None = None,
     max_mito: float | None = None,
     max_ribo: float | None = None,
     exclude_doublets: bool = False,
+    min_cells: int | None = None,
 ) -> AnnData:
     """Filter cells and genes using quality-control metrics.
 
@@ -61,9 +61,6 @@ def filter(
         Maximum total count value allowed per cell.
     min_counts
         Minimum total count value required per cell.
-    min_cells
-        Minimum number of cells in which a gene must be expressed. The metric
-        must be stored in ``adata.var['n_cells']``.
     max_mito
         Maximum mitochondrial fraction allowed per cell. Cells equal to or
         above this value are removed using ``adata.obs['percent_mito']``.
@@ -73,6 +70,9 @@ def filter(
     exclude_doublets
         Remove cells marked ``True`` in the Scanpy-compatible
         ``adata.obs['predicted_doublet']`` column.
+    min_cells
+            Minimum number of cells in which a gene must be expressed. The metric
+            must be stored in ``adata.var['n_cells']``.
 
     Returns
     -------
@@ -119,9 +119,9 @@ def filter(
     if min_counts is not None:
         cell_mask &= _metric(adata, "total_counts", "min_counts") >= min_counts
     if max_mito is not None:
-        cell_mask &= _metric(adata, "percent_mito", "max_mito") < max_mito
+        cell_mask &= _metric(adata, "pct_counts_mt", "max_mito") < max_mito
     if max_ribo is not None:
-        cell_mask &= _metric(adata, "percent_ribo", "max_ribo") < max_ribo
+        cell_mask &= _metric(adata, "pct_counts_ribo", "max_ribo") < max_ribo
     if exclude_doublets:
         doublets = _metric(adata, "predicted_doublet", "exclude_doublets")
         if not np.issubdtype(doublets.dtype, np.bool_):
@@ -133,9 +133,9 @@ def filter(
         adata = subset_adata(adata, cell_mask, axis=0)
 
     if min_cells is not None:
-        if "n_cells" not in adata.var:
-            raise ValueError("min_cells requires adata.var['n_cells']")
-        gene_mask = adata.var["n_cells"] >= min_cells
+        if "total_counts" not in adata.var:
+            raise ValueError("min_cells requires adata.var['total_counts']")
+        gene_mask = adata.var["total_counts"] >= min_cells
         logger.info("removed {} genes", int((~gene_mask).sum()))
         adata = subset_adata(adata, gene_mask, axis=1)
 

@@ -254,5 +254,5 @@ data/interim/*
 !data/interim/.gitkeep
 data/interim/**/*
 
-# Marimo session metadata
-**/__marimo__/
+!results/.gitkeep
+results/

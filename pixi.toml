@@ -12,7 +12,6 @@ format = "ruff format ."
 format-check = "ruff format --check ."
 typecheck = "mypy src"
 docs = "mkdocs build"
-notebook = "marimo edit notebooks/standard_workflow.py"
 
 [dependencies]
 python = "3.12.*"
@@ -21,6 +20,7 @@ matplotlib = ">=3.11.2,<4"
 seaborn = ">=0.13.2,<0.14"
 plotnine = ">=0.15.8,<0.16"
 loguru = ">=0.7.3,<0.8"
+scikit-misc = ">=0.5.1,<0.6"
 
 [pypi-dependencies]
 besca_sc = { path = ".", editable = true }
@@ -42,22 +42,21 @@ mypy = "*"
 
 [feature.sc.dependencies]
 scanpy = "*"
+leidenalg = "*"
+python-igraph = "*"
 
 [feature.sc.pypi-dependencies]
 mygene = ">=3.2.2, <4"
 
-[feature.notebook.dependencies]
-marimo = "*"
-
 [environments]
 dev = ["dev"]
-sc = ["sc"]
-besca = ["notebook", "sc"]
+besca = ["sc"]
 
 # https://docs.astral.sh/ruff
 [tool.ruff] # settings for linting and formatting
 # Exclude a variety of commonly ignored directories.
 exclude = [
+  "notebooks",
   ".bzr",
   ".direnv",
   ".eggs",

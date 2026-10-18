@@ -8,145 +8,85 @@ from typing import Literal
 import anndata as ad
 import numpy as np
 import pandas as pd
-from loguru import logger
-from scipy.special import logit
 from scipy.stats import median_abs_deviation
 
+Side = Literal["both", "lower", "upper"]
+FilterSpec = tuple[float, Side]
 
-def mad_thresholds(values: pd.Series, nmads: float) -> tuple[float, float]:
-    """Return lower and upper thresholds based on the median absolute deviation."""
-    if nmads < 0:
-        raise ValueError("nmads must be non-negative")
-    if not pd.api.types.is_numeric_dtype(values):
-        raise TypeError("metric must contain numeric values")
+# Default MAD-based QC filters based on single-cell best-practice guidelines:
+# See https://www.sc-best-practices.org/preprocessing-visualization/quality-control.
+default_nmads: dict[str, FilterSpec] = {
+    "log1p_total_counts": (5, "both"),
+    "log1p_n_genes_by_counts": (5, "both"),
+    "pct_counts_in_top_20_genes": (5, "both"),
+    "logit_mt_fraction": (3, "upper"),
+}
 
-    median = float(np.nanmedian(values))
-    mad = float(median_abs_deviation(values, nan_policy="omit"))
-    return median - nmads * mad, median + nmads * mad
-
-
-def is_outlier(
+def get_threshold(
     adata: ad.AnnData,
+    cell: bool,
     metric: str,
     nmads: float,
-    side: Literal["both", "upper"] = "both",
-    groupby: str | None = None,
-) -> pd.Series:
-    """Return MAD-based outlier flags, globally or independently per group."""
+    direction: str,
+    lower_bound: float | None = None,
+    upper_bound: float | None = None,
+) -> float:
+    """Calculate a bounded MAD threshold for an observation or gene metric."""
     if not isinstance(adata, ad.AnnData):
         raise TypeError("adata must be an AnnData object")
-    if metric not in adata.obs:
-        raise ValueError(f"metric must be present in adata.obs: {metric!r}")
-    if side not in ("both", "upper"):
-        raise ValueError("side must be 'both' or 'upper'")
-    if groupby is not None and groupby not in adata.obs:
-        raise ValueError(f"groupby must be present in adata.obs: {groupby!r}")
-
-    values = adata.obs[metric]
-    if groupby is None:
-        groups = [(None, values.index)]
-    else:
-        groups = adata.obs.groupby(groupby, dropna=False).groups.items()
-
-    flags = pd.Series(False, index=values.index, dtype=bool)
-    for _, indices in groups:
-        group_values = values.loc[indices]
-        lower, upper = mad_thresholds(group_values, nmads)
-        if side == "upper":
-            group_flags = group_values > upper
-        else:
-            group_flags = (group_values < lower) | (group_values > upper)
-        flags.loc[indices] = group_flags
-    return flags.fillna(False).astype(bool)
+    if direction not in {"low", "high"}:
+        raise ValueError("direction must be 'low' or 'high'")
+    if not np.isfinite(nmads) or nmads < 0:
+        raise ValueError("nmads must be finite and non-negative")
+    table = adata.obs if cell else adata.var
+    if metric not in table:
+        scope = "adata.obs" if cell else "adata.var"
+        raise ValueError(f"unknown metric {metric!r} in {scope}")
+    values = pd.to_numeric(table[metric], errors="coerce").to_numpy(dtype=float)
+    values = values[np.isfinite(values)]
+    if values.size == 0:
+        raise ValueError(f"metric {metric!r} contains no finite values")
+    median = float(np.median(values))
+    mad = float(median_abs_deviation(values))
+    estimate = median + nmads * mad if direction == "high" else median - nmads * mad
+    if lower_bound is not None:
+        estimate = max(estimate, lower_bound)
+    if upper_bound is not None:
+        estimate = min(estimate, upper_bound)
+    return float(estimate)
 
 
-def flag_outliers(
+def calculate_thresholds(
     adata: ad.AnnData,
-    qc_filters: Mapping[str, tuple[float, Literal["both", "upper"]]] | None = None,
-    mt_threshold: float = 8.0,
-    groupby: str | None = None,
-) -> ad.AnnData:
-    """Add combined QC outlier flags to an AnnData object.
+    metric_bounds: Mapping[str, tuple[float | None, float | None]] | None = None,
+    *,
+    nmads: float | Mapping[str, float] | None = None,
+    cell: bool = True,
+) -> dict[str, tuple[float, float]]:
+    """Calculate low/high MAD thresholds for QC metrics.
 
-    The mitochondrial flag is restricted to cells whose ``pct_counts_mt`` is
-    above ``mt_threshold``. By default, the function uses common Scanpy QC
-    metrics; callers can provide a custom mapping of metric names to
-    ``(nmads, side)`` pairs.
-
-    Parameters
-    ----------
-    adata
-        AnnData object containing the QC metrics in ``adata.obs``.
-    qc_filters
-        Mapping of metric names to MAD settings. The special metric
-        ``logit_mt_fraction`` is used to create ``mt_outlier``.
-    mt_threshold
-        Minimum ``pct_counts_mt`` value required for a mitochondrial outlier.
-    groupby
-        Optional observation column used to calculate MAD thresholds
-        independently for each sample or biological group.
-
-    Returns
-    -------
-    AnnData
-        The input ``adata`` with ``outlier`` and ``mt_outlier`` columns added.
+    If ``metric_bounds`` is omitted, the metrics and MAD multipliers from
+    ``DEFAULT_FILTERS`` are used. A scalar ``nmads`` overrides all defaults;
+    a mapping overrides selected metrics.
     """
-    if not isinstance(adata, ad.AnnData):
-        raise TypeError("adata must be an AnnData object")
-    if mt_threshold < 0:
-        raise ValueError("mt_threshold must be non-negative")
+    if metric_bounds is None:
+        metric_bounds = {metric: (None, None) for metric in default_nmads}
 
-    logger.info(
-        "started outlier detection for {} cells and {} genes",
-        adata.n_obs,
-        adata.n_vars,
-    )
+    def metric_nmads(metric: str) -> float:
+        if isinstance(nmads, Mapping):
+            return float(nmads.get(metric, default_nmads.get(metric, (5, "both"))[0]))
+        if nmads is not None:
+            return float(nmads)
+        return float(default_nmads.get(metric, (5, "both"))[0])
 
-    filters = dict(
-        qc_filters
-        or {
-            "log1p_total_counts": (5, "both"),
-            "log1p_n_genes_by_counts": (5, "both"),
-            "pct_counts_in_top_20_genes": (5, "both"),
-            "logit_mt_fraction": (3, "upper"),
-        }
-    )
-    filters.setdefault("logit_mt_fraction", (3, "upper"))
-
-    required = {"total_counts_mt", "total_counts", "pct_counts_mt"}
-    missing = required - set(adata.obs.columns)
-    if missing:
-        raise ValueError(f"missing mitochondrial QC metrics: {sorted(missing)}")
-
-    mt_fraction = (adata.obs["total_counts_mt"] + 1) / (adata.obs["total_counts"] + 2)
-    adata.obs["logit_mt_fraction"] = logit(mt_fraction)
-
-    flags = {
-        metric: is_outlier(adata, metric, nmads, side, groupby=groupby)
-        for metric, (nmads, side) in filters.items()
-    }
-    for metric, metric_flags in flags.items():
-        scope = f" across groups in '{groupby}'" if groupby else ""
-        logger.info(
-            "metric '{}' flagged {} outliers{}",
-            metric,
-            int(metric_flags.sum()),
-            scope,
+    return {
+        metric: (
+            get_threshold(
+                adata, cell, metric, metric_nmads(metric), "low", lower, upper
+            ),
+            get_threshold(
+                adata, cell, metric, metric_nmads(metric), "high", lower, upper
+            ),
         )
-    non_mito_flags = [
-        flags[metric] for metric in filters if metric != "logit_mt_fraction"
-    ]
-    adata.obs["outlier"] = (
-        np.logical_or.reduce(non_mito_flags)
-        if non_mito_flags
-        else np.zeros(adata.n_obs, dtype=bool)
-    )
-    adata.obs["mt_outlier"] = flags["logit_mt_fraction"] & (
-        adata.obs["pct_counts_mt"] > mt_threshold
-    )
-    logger.info(
-        "finished outlier detection: {} outliers and {} mitochondrial outliers",
-        int(adata.obs["outlier"].sum()),
-        int(adata.obs["mt_outlier"].sum()),
-    )
-    return adata
+        for metric, (lower, upper) in metric_bounds.items()
+    }

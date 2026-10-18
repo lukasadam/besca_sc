@@ -2,6 +2,28 @@
 
 Quick reference for managing Python projects, dependencies, environments, and development workflows with [Pixi](https://pixi.sh/).
 
+## Installation and shell setup
+
+Install Pixi:
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+
+Enable shell completion for Bash:
+
+```bash
+echo 'eval "$(pixi completion --shell bash)"' >> ~/.bashrc
+```
+
+For Zsh, use:
+
+```bash
+echo 'eval "$(pixi completion --shell zsh)"' >> ~/.zshrc
+```
+
+Restart the shell or source the configuration file after adding completion.
+
 ## Project initialization
 
 ```bash
@@ -72,6 +94,54 @@ pixi shell -e dev                 # Enter dev environment
 pixi task list                    # List registered tasks
 ```
 
+Activate and leave a Pixi shell:
+
+```bash
+pixi shell -e dev                 # Enter an environment
+which python                      # Find the active interpreter
+exit                              # Leave the environment
+```
+
+Use the path printed by `which python` when manually selecting a Python
+interpreter in VS Code.
+
+## Register a Jupyter kernel
+
+Register a Pixi environment as a selectable Jupyter kernel:
+
+```bash
+pixi install -e besca
+pixi run -e besca python -m ipykernel install --user \
+  --name besca-sc \
+  --display-name "Python (besca-sc)"
+```
+
+After registration, select **Python (besca-sc)** in Jupyter, VS Code, or another
+Jupyter-compatible editor. The kernel uses the Python environment managed by
+Pixi, including the editable local `besca_sc` package.
+
+List installed kernels:
+
+```bash
+jupyter kernelspec list
+```
+
+Remove the kernel later if needed:
+
+```bash
+jupyter kernelspec uninstall besca-sc
+```
+
+## Global Pixi tools
+
+Install command-line tools globally, outside a project environment:
+
+```bash
+pixi global install ruff copier
+pixi global list
+pixi global remove copier
+```
+
 Define reusable tasks in `pyproject.toml`:
 
 ```toml
@@ -127,6 +197,19 @@ pixi install --frozen        # Use existing lockfile without updating
 pixi lock                    # Resolve and generate lockfile
 pixi clean                   # Remove workspace environments
 ```
+
+## Common maintenance commands
+
+```bash
+pixi update                  # Update dependencies and the lockfile
+pixi lock                    # Regenerate the lockfile
+pixi info                    # Inspect workspace and environment information
+pixi run python script.py    # Run a Python script in the default environment
+```
+
+Avoid mixing Conda and PyPI sources for packages with compiled GUI
+dependencies such as Qt. Install all related packages from the same source
+where possible.
 
 Commit `pixi.lock` to Git for reproducibility. Usually exclude `.pixi/` from version control.
 

@@ -5,7 +5,8 @@ import pandas as pd
 import pytest
 from anndata import AnnData
 
-from besca_sc._helper import convert_ensembl_to_symbol, subset_adata
+from besca_sc._helper import convert_ensembl_to_symbol
+from besca_sc.pp._subset import subset_adata
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 [project]
 authors = [{name = "Lukas Adam", email = "gm.lukas.adam@gmail.com"}]
-dependencies = ["loguru>=0.7.3,<0.8"]
+dependencies = ["loguru>=0.7.3,<0.8", "scikit-misc>=0.5.1,<0.6"]
 name = "besca_sc"
 requires-python = ">= 3.11"
 dynamic = ["version"]
@@ -30,6 +30,9 @@ select = [
     "F",    # Pyflakes
     "D",    # Docstring conventions
 ]
+
+[tool.ruff]
+exclude = ["notebooks"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
